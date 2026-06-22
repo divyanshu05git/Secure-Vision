@@ -15,11 +15,14 @@ class Detection:
 
 @dataclass
 class InferenceResult:
-    detection:List[Detection]=field(deafault_factory=list)
-    violation:List[Detection]=field()
+    detections:List[Detection]=field(default_factory=list)
+    violation:List[Detection]=field(default_factory=list)
+    annotated_frame: np.ndarray = None  
+    inference_time_ms: float = 0.0
+
 
 PPE_VIOLATION_CLASSES={
-    "no-helemt",
+    "no-helmet",
     "no-vest",
     "no-glasses",
     "no-boots",
@@ -30,7 +33,7 @@ HARNESS_VIOLATION_CLASSES={
 }
 
 class SafetyDetector:
-    def __init__(self,ppe_model:str=None,harness_model_path:str=None):
+    def __init__(self,ppe_model_path:str=None,harness_model_path:str=None):
         self.ppe_model=YOLO(ppe_model_path or "yolo11n.pt")
 
         self.harness_model=YOLO(harness_model_path or "yolo11n.pt")
@@ -42,12 +45,12 @@ class SafetyDetector:
 
         result=InferenceResult(inference_time_ms=elapsed_ms)
 
-        yolo_result=raw_result[0]
+        yolo_result=raw_results[0]
 
         for box in yolo_result.boxes:
             class_idx=int(box.cls.item())
             class_name=yolo_result.names[class_idx]
-            confidence=foat(box.conf.item())
+            confidence=float(box.conf.item())
             
             x1,y1,x2,y2=box.xyxy[0].tolist()
             bbox=(int(x1),int(y1),int(x2),int(y2))
@@ -72,7 +75,32 @@ class SafetyDetector:
 
     def run_harness(self,frame:np.ndarray,conf_threshold:float=0.4)->InferenceResult:
         start=time.time()
-        
+        raw_results = self.harness_model(frame, conf=conf_threshold, verbose=False)
+        elapsed_ms = (time.time() - start) * 1000
+
+        result = InferenceResult(inference_time_ms=elapsed_ms)
+        yolo_result = raw_results[0]
+
+        for box in yolo_result.boxes:
+            class_idx = int(box.cls.item())
+            class_name = yolo_result.names[class_idx]
+            confidence = float(box.conf.item())
+            x1, y1, x2, y2 = box.xyxy[0].tolist()
+            bbox = (int(x1), int(y1), int(x2), int(y2))
+            is_violation = class_name.lower() in HARNESS_VIOLATION_CLASSES
+
+            detection = Detection(
+                class_name=class_name,
+                confidence=confidence,
+                bbox=bbox,
+                is_violation=is_violation,
+            )
+            result.detections.append(detection)
+            if is_violation:
+                result.violations.append(detection)
+
+        result.annotated_frame = yolo_result.plot()
+        return result
 
 
 
