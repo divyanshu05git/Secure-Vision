@@ -1,35 +1,60 @@
-import express from 'express';
+import express from "express"
+import { query } from "../db/index.js"
 
-const router=express.Router();
+const router = express.Router()
 
-const violations=[]
+export const saveViolation = async (violation) => {
+  try {
+    await query(
+      `INSERT INTO violations (type, confidence, bbox)
+       VALUES ($1, $2, $3)`,
+      [
+        violation.class_name,
+        violation.confidence,
+        JSON.stringify(violation.bbox)
+      ]
+    )
+  } catch (err) {
+    console.error("Failed to save violation:", err.message)
+  }
+}
 
-export const saveViolation = (violation) => {
-  violations.push({
-    id: violations.length + 1,
-    timestamp: new Date().toISOString(),
-    type: violation.class_name,
-    confidence: violation.confidence,
-    bbox: violation.bbox,
-  });
-};
+router.get("/violations", async (req, res) => {
+  try {
+    const result = await query(
+      `SELECT * FROM violations ORDER BY timestamp DESC LIMIT 100`
+    )
+    return res.json(result.rows)
+  } catch (err) {
+    return res.status(500).json({ error: err.message })
+  }
+})
 
+router.get("/violations/stats", async (req, res) => {
+  try {
+    const result = await query(`
+      SELECT type, COUNT(*)::int as count
+      FROM violations
+      GROUP BY type
+      ORDER BY count DESC
+    `)
+    const stats = {}
+    result.rows.forEach(row => {
+      stats[row.type] = row.count
+    })
+    return res.json(stats)
+  } catch (err) {
+    return res.status(500).json({ error: err.message })
+  }
+})
 
-router.get("/violations", (req, res) => {
-  return res.json(violations);
-});
+router.delete("/violations", async (req, res) => {
+  try {
+    await query(`DELETE FROM violations`)
+    return res.json({ message: "Violations cleared" })
+  } catch (err) {
+    return res.status(500).json({ error: err.message })
+  }
+})
 
-router.get("/violations/stats", (req, res) => {
-  const stats = {};
-  violations.forEach((v) => {
-    stats[v.type] = (stats[v.type] || 0) + 1;
-  });
-  return res.json(stats);
-});
-
-router.delete("/violations", (req, res) => {
-  violations.length = 0;
-  return res.json({ message: "Violations cleared" });
-});
-
-export default router;
+export default router

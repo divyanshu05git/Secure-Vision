@@ -75,7 +75,8 @@ async def detect(file: UploadFile = File(...), confidence: float = 0.4):
             if not zone_checker.is_in_safe_zone(foot):
                 zone_violations.append(det)
 
-    annotated = zone_checker.draw_zones(result.annotated_frame)
+    # annotated = zone_checker.draw_zones(result.annotated_frame)
+    annotated =result.annotated_frame
     _, buffer = cv2.imencode(".jpg", annotated)
     frame_b64 = base64.b64encode(buffer).decode("utf-8")
 

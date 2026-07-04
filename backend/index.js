@@ -3,6 +3,7 @@ import cors from "cors"
 import morgan from "morgan"
 import detectRouter from "./routes/detect.js"
 import violationsRouter from "./routes/violations.js"
+import { initDB } from "./db/index.js"
 
 const app=express();
 
@@ -14,6 +15,10 @@ app.use("/api",detectRouter)
 app.use("/api",violationsRouter);
 
 
-app.listen(3000,()=>{
-   console.log("backend is running on port 3000")
-});
+initDB().then(() => {
+  app.listen(3000, () => {
+    console.log("Backend running on 3000")
+  })
+}).catch((err) => {
+  console.error("Failed to init DB:", err.message)
+})

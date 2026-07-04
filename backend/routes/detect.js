@@ -2,6 +2,8 @@ import express from "express";
 import axios from "axios";
 import FormData from "form-data";
 import { upload } from "../middleware/upload.js";
+import { saveViolation } from "./violations.js" 
+
 
 
 const router =express.Router()
@@ -36,6 +38,16 @@ router.post('/detect',upload.single("file"),async(req,res)=>{
                 timeout: 10000,
             }
         )
+
+        const detectionData = response.data
+
+        // Save violations to DB  ← add this block
+        if (detectionData.violations?.length > 0) {
+        for (const violation of detectionData.violations) {
+            await saveViolation(violation)
+        }
+        }
+
 
         return res.json(response.data)
     }
