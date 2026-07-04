@@ -29,7 +29,7 @@ router.post('/detect',upload.single("file"),async(req,res)=>{
         //send to inference model
         const response=await axios.post(
             //add inference url
-            "url",
+            "http://localhost:8000/api/v1/detect",
             formData,
             {
                 headers: formData.getHeaders(),

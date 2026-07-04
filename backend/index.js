@@ -2,6 +2,7 @@ import express from "express"
 import cors from "cors"
 import morgan from "morgan"
 import detectRouter from "./routes/detect.js"
+import violationsRouter from "./routes/violations.js"
 
 const app=express();
 
@@ -10,7 +11,9 @@ app.use(cors());
 app.use(morgan("dev"));
 
 app.use("/api",detectRouter)
+app.use("/api",violationsRouter);
+
 
 app.listen(3000,()=>{
-   console.log("backend is running on port 30000")
+   console.log("backend is running on port 3000")
 });
