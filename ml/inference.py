@@ -22,14 +22,14 @@ class InferenceResult:
 
 
 PPE_VIOLATION_CLASSES={
-    "no-helmet",
-    "no-vest",
-    "no-glasses",
-    "no-boots",
+    "no_helmet",
+    "no_vest",
+    "no_glasses",
+    "no_boots",
 }
 
 HARNESS_VIOLATION_CLASSES={
-    "no-harness",
+    "no_harness",
 }
 
 class SafetyDetector:
@@ -67,7 +67,7 @@ class SafetyDetector:
 
             result.detections.append(detection)
             if is_violation:
-                result.violations.append(detection)
+                result.violation.append(detection)
 
         result.annotated_frame=yolo_result.plot()
         return result
@@ -97,7 +97,7 @@ class SafetyDetector:
             )
             result.detections.append(detection)
             if is_violation:
-                result.violations.append(detection)
+                result.violation.append(detection)
 
         result.annotated_frame = yolo_result.plot()
         return result

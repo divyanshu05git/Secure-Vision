@@ -24,7 +24,7 @@ app.add_middleware(
 
 MODEL_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "ml", "models", "ppe_best.pt"
+    "ml", "models", "ppe_best_v2.pt"
 )
 
 print(f"Loading model from: {MODEL_PATH}")
@@ -65,8 +65,12 @@ async def detect(file: UploadFile = File(...), confidence: float = 0.4):
 
     if frame is None:
         raise HTTPException(status_code=400, detail="Could not decode image")
+    
+    # 0.15->confidence
+    result = detector.run_ppe(frame, conf_threshold=0.15) 
 
-    result = detector.run_ppe(frame, conf_threshold=confidence)
+    print("Model classes:", detector.ppe_model.names)
+    print("Detections:", [(d.class_name, round(d.confidence, 2)) for d in result.detections])
 
     zone_violations = []
     for det in result.detections:
@@ -102,6 +106,8 @@ async def detect(file: UploadFile = File(...), confidence: float = 0.4):
         for d in all_violations
     ]
 
+    
+
     return DetectionResponse(
         detections=detection_items,
         violations=violation_items,
@@ -109,3 +115,5 @@ async def detect(file: UploadFile = File(...), confidence: float = 0.4):
         inference_time_ms=round(result.inference_time_ms, 2),
         annotated_frame=frame_b64
     )
+
+
