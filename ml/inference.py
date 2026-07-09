@@ -29,7 +29,7 @@ PPE_VIOLATION_CLASSES={
 }
 
 HARNESS_VIOLATION_CLASSES={
-    "no_harness",
+    "no harness",
 }
 
 class SafetyDetector:

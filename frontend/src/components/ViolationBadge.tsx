@@ -16,7 +16,7 @@ export default function ViolationBadge({ detection }: Props) {
           ${isViolation ? "bg-red-500" : "bg-green-500"}`}
         />
         <span className="text-[13px] font-medium text-[#111] capitalize">
-          {detection.class_name.replace(/-/g, " ")}
+          {detection.class_name.replace(/[-_]/g, " ")}
         </span>
       </div>
 

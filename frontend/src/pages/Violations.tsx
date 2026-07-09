@@ -53,7 +53,7 @@ export default function Violations() {
                 {count}
               </p>
               <p className="text-xs text-[#999] mt-1 capitalize">
-                {type.replace(/-/g, " ")}
+                {type.replace(/[-_]/g, " ")}
               </p>
             </div>
           ))}
@@ -88,7 +88,7 @@ export default function Violations() {
                   <td className="px-5 py-3.5 text-sm text-[#bbb]">{v.id}</td>
                   <td className="px-5 py-3.5">
                     <span className="text-sm font-medium text-red-500 bg-red-50 px-2.5 py-1 rounded-full capitalize">
-                      {v.type.replace(/-/g, " ")}
+                      {v.type.replace(/[-_]/g, " ")}
                     </span>
                   </td>
                   <td className="px-5 py-3.5 text-sm text-[#111]">
