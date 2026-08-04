@@ -75,7 +75,7 @@ class SafetyDetector:
 
     def run_harness(self,frame:np.ndarray,conf_threshold:float=0.4)->InferenceResult:
         start=time.time()
-        raw_results = self.harness_model(frame, conf=conf_threshold, verbose=False)
+        raw_results = self.harness_model(frame, conf=conf_threshold,iou=0.45,agnostic_nms=True, verbose=False)
         elapsed_ms = (time.time() - start) * 1000
 
         result = InferenceResult(inference_time_ms=elapsed_ms)

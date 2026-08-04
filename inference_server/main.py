@@ -74,8 +74,8 @@ async def detect(file: UploadFile = File(...), confidence: float = 0.4):
         raise HTTPException(status_code=400, detail="Could not decode image")
     
     # 0.15->confidence
-    result = detector.run_ppe(frame, conf_threshold=0.15) 
-    harness_result = detector.run_harness(frame, conf_threshold=0.15)
+    result = detector.run_ppe(frame, conf_threshold=0.35) 
+    harness_result = detector.run_harness(frame, conf_threshold=0.35)
 
     print("Model classes:", detector.ppe_model.names)
     print("Detections:", [(d.class_name, round(d.confidence, 2)) for d in result.detections])
